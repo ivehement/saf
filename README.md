@@ -13,7 +13,7 @@
 </p>
 
 # Saf
-A package that allows you to use the native file explorer and make it simple for users to get access for the documents, images, and other files across the directories
+A package that allows you to use the native file explorer and make it simple for users to get access for the documents, images, and other files across the directories on the go.
 
 ## Currently supported features
 * Uses OS default native file explorer
