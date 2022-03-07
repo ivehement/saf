@@ -1,5 +1,5 @@
 name: saf
-description: Use SAF (Storage Access Framework) API to get access of all files and read directories with persistence URI.
+description: A package that allows you to use the native file explorer and make it simple for users to get access for the documents, images, and other files across the directories on the go.
 version: 1.0.1
 homepage: https://github.com/ivehement/saf
 repository: https://github.com/ivehement/saf
