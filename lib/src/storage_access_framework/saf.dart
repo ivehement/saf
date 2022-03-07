@@ -42,8 +42,8 @@ class Saf {
     }
   }
 
-  Future<List<String>?> getFilesPath(
-      {String fileType = "media", String? directory}) async {
+  Future<List<String>?> getFilesPath(String fileType,
+      {String? directory}) async {
     try {
       const kGetFilesPath = "buildChildDocumentsPathUsingTree";
       const kFileType = "fileType";
