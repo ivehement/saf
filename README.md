@@ -6,7 +6,6 @@
   <a href="https://github.com/ivehement/saf/issues"><img src="https://img.shields.io/github/issues/ivehement/saf">
   </a>
   <img src="https://img.shields.io/github/license/ivehement/saf">
-  <img src="https://img.shields.io/github/license/ivehement/saf">
   <a href="https://github.com/ivehement/saf/actions/workflows/main.yml">
     <img alt="CI pipeline status" src="https://github.com/ivehement/saf/actions/workflows/main.yml/badge.svg">
   </a>
