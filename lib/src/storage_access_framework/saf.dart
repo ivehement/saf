@@ -8,13 +8,9 @@ class Saf {
     uriString = makeUriString(directoryPath, isTreeUri: true);
   }
 
-  Future<bool?> getDirPermission(
+  Future<bool?> getDirectoryPermission(
       {bool grantWritePermission = true, bool isDynamic = false}) async {
     try {
-      // if (initialDirectoryPath != null) {
-      //   directoryPath = initialDirectoryPath;
-      //   uriString = makeUriString(directoryPath);
-      // }
       const kOpenDocumentTree = 'openDocumentTree';
       const kGrantWritePermission = 'grantWritePermission';
       const kInitialUri = 'initialUri';
@@ -67,25 +63,6 @@ class Saf {
     }
   }
 
-  Future<List<String>?> getCachedFilesPath() async {
-    try {
-      const kGetFilesPath = "getCachedFilesPath";
-      const kCacheDirectoryName = "cacheDirectoryName";
-
-      var cacheDirectoryName = makeDirectoryPathToName(directoryPath);
-
-      final args = <String, dynamic>{
-        kCacheDirectoryName: cacheDirectoryName,
-      };
-      final paths = await kDocumentFileChannel.invokeMethod<List<dynamic>?>(
-          kGetFilesPath, args);
-      if (paths == null) return null;
-      return List<String>.from(paths);
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<List<String>?> cache() async {
     try {
       const kCacheToExternalFilesDirectory = "cacheToExternalFilesDirectory";
@@ -100,6 +77,25 @@ class Saf {
       };
       final paths = await kDocumentFileChannel.invokeMethod<List<dynamic>?>(
           kCacheToExternalFilesDirectory, args);
+      if (paths == null) return null;
+      return List<String>.from(paths);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<String>?> getCachedFilesPath() async {
+    try {
+      const kGetFilesPath = "getCachedFilesPath";
+      const kCacheDirectoryName = "cacheDirectoryName";
+
+      var cacheDirectoryName = makeDirectoryPathToName(directoryPath);
+
+      final args = <String, dynamic>{
+        kCacheDirectoryName: cacheDirectoryName,
+      };
+      final paths = await kDocumentFileChannel.invokeMethod<List<dynamic>?>(
+          kGetFilesPath, args);
       if (paths == null) return null;
       return List<String>.from(paths);
     } catch (e) {
@@ -152,7 +148,7 @@ class Saf {
     }
   }
 
-  Future<bool?> syncWithCacheDir() async {
+  Future<bool?> syncWithCacheDirectory() async {
     try {
       const kSyncWithExternalFilesDirectory = "syncWithExternalFilesDirectory";
       const kSourceTreeUriString = "sourceTreeUriString";
@@ -173,7 +169,7 @@ class Saf {
     }
   }
 
-  Future<List<String>?> getPersistedPermissionDirectories() async {
+  static Future<List<String>?> getPersistedPermissionDirectories() async {
     var uriPermissions = await persistedUriPermissions();
 
     if (uriPermissions == null) return null;
@@ -185,21 +181,24 @@ class Saf {
     return uriStrings;
   }
 
-  Future<bool?> releasePersistedPermissions(
-      {String? newDirectoryPath, bool releaseAll = false}) async {
+  static Future<bool?> releasePersistedPermissions() async {
     try {
-      if (releaseAll) {
-        var persistedPermissionDirectories =
-            await getPersistedPermissionDirectories();
-        if (persistedPermissionDirectories != null) {
-          for (var directory in persistedPermissionDirectories) {
-            releasePersistableUriPermission(
-                makeUriString(directory, isTreeUri: true));
-          }
+      var persistedPermissionDirectories =
+          await getPersistedPermissionDirectories();
+      if (persistedPermissionDirectories != null) {
+        for (var directory in persistedPermissionDirectories) {
+          releasePersistableUriPermission(
+              makeUriString(directory, isTreeUri: true));
         }
-        return true;
       }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
+  Future<bool?> releasePersistedPermission({String? newDirectoryPath}) async {
+    try {
       if (newDirectoryPath != null) {
         await releasePersistableUriPermission(
             makeUriString(newDirectoryPath, isTreeUri: true));
