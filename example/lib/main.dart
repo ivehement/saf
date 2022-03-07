@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Saf Plugin example app'),
+          title: const Text('Saf example app'),
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
                     MaterialStateProperty.all(Colors.deepPurpleAccent),
               ),
               onPressed: () async {
-                await saf.releasePersistedPermissions(releaseAll: true);
+                Saf.releasePersistedPermissions();
               },
               child: const Text("Release*"),
             ),
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
                 backgroundColor: MaterialStateProperty.all(Colors.green),
               ),
               onPressed: () async {
-                var isSync = await saf.syncWithCacheDir();
+                var isSync = await saf.syncWithCacheDirectory();
                 if (isSync != null && isSync) {
                   var paths = await saf.getCachedFilesPath();
                   loadImage(paths);
@@ -134,7 +134,7 @@ class _MyAppState extends State<MyApp> {
             ],
           ),
           onPressed: () async {
-            await saf.getDirPermission(
+            await saf.getDirectoryPermission(
                 isDynamic:
                     true); // if [isDynamic] is true then we can let the user choose the folder
           },
