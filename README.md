@@ -1,3 +1,4 @@
+![saf](https://github.com/ivehement/saf/blob/master/example/screenshots/saf_banner.png?raw=true)
 <p align="center">
  <a href="https://pub.dartlang.org/packages/saf">
     <img alt="Saf" src="https://img.shields.io/pub/v/saf.svg">
@@ -119,7 +120,7 @@ For full usage details refer to the **[Wiki](https://github.com/ivehement/saf/wi
 
 ## Example App
 #### Android
-![Demo](https://github.com/ivehement/saf/blob/master/example/screenshots/example.gif)
+![Demo](https://github.com/ivehement/saf/blob/master/example/screenshots/saf_example.gif)
 
 ## Getting Started
 
