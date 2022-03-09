@@ -1,3 +1,7 @@
+## 1.0.1+2
+
+* Path bug fix & description update
+
 ## 1.0.1+1
 
 * Description small update
