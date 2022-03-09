@@ -1,5 +1,5 @@
 name: saf
-description: A package that allows you to use the native file explorer and make it simple for users to get access for the documents, images, and other files across the directories on the go.
+description: Flutter plugin that leverages Storage Access Framework (SAF) API that allows you to use the native file explorer and make it simple for users to get access to the documents, images, and other files across the directories on the go.
 homepage: https://github.com/ivehement/saf
 repository: https://github.com/ivehement/saf
 issue_tracker: https://github.com/ivehement/saf/issues
