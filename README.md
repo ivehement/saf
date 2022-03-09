@@ -12,7 +12,7 @@
 </p>
 
 # Saf
-Flutter plugin that leverages Storage Access Framework (SAF) API to use the native file explorer and make it simple to get access to the documents, images, and other files across the directories on the go.
+Flutter plugin that leverages Storage Access Framework (SAF) API to get access and perform the operations on files and folders.
 
 ## Currently supported features
 * Uses OS default native file explorer
