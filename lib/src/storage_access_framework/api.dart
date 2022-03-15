@@ -7,15 +7,8 @@ import 'package:saf/src/storage_access_framework/document_file_column.dart';
 import 'package:saf/src/storage_access_framework/partial_document_file.dart';
 import 'package:saf/src/storage_access_framework/uri_permission.dart';
 
-/// Start Activity Action: Allow the user to pick a directory subtree.
-/// When invoked, the system will display the various `DocumentsProvider`
-/// instances installed on the device, letting the user navigate through them.
-/// Apps can fully manage documents within the returned directory.
-///
-/// [Refer to details](https://developer.android.com/reference/android/content/Intent#ACTION_OPEN_DOCUMENT_TREE)
-///
-/// support the initial directory of the directory picker
-String makeUriString(String path, {bool isTreeUri = false}) {
+/// Convert Directory path to URI String
+String makeUriString({String path = "", bool isTreeUri = false}) {
   String uri = "";
   String base =
       "content://com.android.externalstorage.documents/tree/primary%3A";
@@ -24,8 +17,8 @@ String makeUriString(String path, {bool isTreeUri = false}) {
   if (isTreeUri) {
     uri = base + path.replaceAll("/", "%2F").replaceAll(" ", "%20");
   } else {
-    var pathCuts = path.split("/");
-    var fileName = pathCuts[pathCuts.length - 1];
+    var pathSegments = path.split("/");
+    var fileName = pathSegments[pathSegments.length - 1];
     var directory = path.split("/$fileName")[0];
     uri = base +
         directory.replaceAll("/", "%2F").replaceAll(" ", "%20") +
@@ -34,6 +27,7 @@ String makeUriString(String path, {bool isTreeUri = false}) {
   return uri;
 }
 
+/// Convert URI String into Directory path
 String makeDirectoryPath(String uriString) {
   String directoryPathUriString = uriString.split("primary%3A")[1];
   String directoryPath =
@@ -41,13 +35,22 @@ String makeDirectoryPath(String uriString) {
   return directoryPath;
 }
 
+/// Create a name Alias for Directory path e.g. Android/media/matrix -> Android_media_matrix
 String makeDirectoryPathToName(String path) {
   return path.replaceAll("/", "_");
 }
 
+/// Start Activity Action: Allow the user to pick a directory subtree.
+/// When invoked, the system will display the various `DocumentsProvider`
+/// instances installed on the device, letting the user navigate through them.
+/// Apps can fully manage documents within the returned directory.
+///
+/// [Refer to details](https://developer.android.com/reference/android/content/Intent#ACTION_OPEN_DOCUMENT_TREE)
+///
+/// support the initial directory of the directory picker
 Future<String?> openDocumentTree(
     {bool grantWritePermission = true, String? initialDirPath = ""}) async {
-  String initialUri = makeUriString(initialDirPath as String);
+  String initialUri = makeUriString(path: initialDirPath as String);
   const kOpenDocumentTree = 'openDocumentTree';
 
   const kGrantWritePermission = 'grantWritePermission';
@@ -65,12 +68,14 @@ Future<String?> openDocumentTree(
   return selectedDirectoryUri.toString();
 }
 
+/// Build Document URI's from tree URI
 Future<List<String>?> getFilesUri(String treeUriString,
     {String fileType = "media"}) async {
   try {
+    const kGetFilesUri = "buildChildDocumentsUriUsingTree";
+
     const kFileType = "fileType";
     const kTreeUriString = "treeUriString";
-    const kGetFilesUri = "buildChildDocumentsUriUsingTree";
 
     final args = <String, dynamic>{
       kFileType: fileType,
@@ -85,6 +90,7 @@ Future<List<String>?> getFilesUri(String treeUriString,
   }
 }
 
+/// Get the path for App Package's [files] Directory i.e. ~/Android/data/<package-id>/files/
 Future<String?> getExternalFilesDirPath() async {
   try {
     const kGetFilesUri = "getExternalFilesDirPath";

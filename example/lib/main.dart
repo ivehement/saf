@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:saf/saf.dart';
 
 /// Edit the Directory Programmatically Here
-const directory = "Android/media/matrix/.new";
+const directory = "Android/media/com.whatsapp/WhatsApp/Media/.Statuses";
 
 void main() {
   runApp(const MyApp());
@@ -20,23 +20,23 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Saf saf;
-  var paths = [];
+  var _paths = [];
   @override
   void initState() {
     Permission.storage.request();
-    saf = Saf(directoryPath: directory);
+    saf = Saf(directory);
     super.initState();
   }
 
-  loadImage(p, {String k = ""}) {
+  loadImage(paths, {String k = ""}) {
     var tempPaths = [];
-    for (String path in p) {
+    for (String path in paths) {
       if (path.endsWith(".jpg")) {
         tempPaths.add(path);
       }
     }
     if (k.isNotEmpty) tempPaths.add(k);
-    paths = tempPaths;
+    _paths = tempPaths;
     setState(() {});
   }
 
@@ -51,8 +51,8 @@ class _MyAppState extends State<MyApp> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                if (paths.isNotEmpty)
-                  ...paths.map(
+                if (_paths.isNotEmpty)
+                  ..._paths.map(
                     (path) => Card(
                       child: Image.file(
                         File(path),
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                     MaterialStateProperty.all(Colors.blueGrey.shade700),
               ),
               onPressed: () async {
-                var cachedFilesPath = await saf.cache();
+                var cachedFilesPath = await Saf.cacheFor(directory);
                 if (cachedFilesPath != null) {
                   loadImage(cachedFilesPath);
                 }
@@ -94,10 +94,10 @@ class _MyAppState extends State<MyApp> {
                 backgroundColor: MaterialStateProperty.all(Colors.green),
               ),
               onPressed: () async {
-                var isSync = await saf.syncWithCacheDirectory();
-                if (isSync != null && isSync) {
-                  var paths = await saf.getCachedFilesPath();
-                  loadImage(paths);
+                var isSync = await Saf.syncWith(directory);
+                if (isSync as bool) {
+                  var _paths = await saf.getCachedFilesPath();
+                  loadImage(_paths);
                 }
               },
               child: const Text("Sync"),
@@ -134,9 +134,7 @@ class _MyAppState extends State<MyApp> {
             ],
           ),
           onPressed: () async {
-            await saf.getDirectoryPermission(
-                isDynamic:
-                    true); // if [isDynamic] is true then we can let the user choose the folder
+            await saf.getDirectoryPermission(isDynamic: true);
           },
         ),
       ),

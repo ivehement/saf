@@ -12,6 +12,7 @@ const val EXCEPTION_MISSING_PERMISSIONS = "EXCEPTION_MISSING_PERMISSIONS"
  */
 const val OPEN_DOCUMENT_TREE = "openDocumentTree"
 const val SYNC_WITH_EXTERNAL_FILES_DIRECTORY = "syncWithExternalFilesDirectory"
+const val DYNAMIC_SYNC_WITH_EXTERNAL_FILES_DIRECTORY = "dynamicSyncWithExternalFilesDirectory"
 const val CACHE_TO_EXTERNAL_FILES_DIRECTORY = "cacheToExternalFilesDirectory"
 const val SINGLE_CACHE_TO_EXTERNAL_FILES_DIRECTORY = "singleCacheToExternalFilesDirectory"
 const val CLEAR_CACHED_FILES = "clearCachedFiles"
@@ -50,3 +51,9 @@ const val GET_DOCUMENT_CONTENT = "getDocumentContent"
  * Intent Request Codes
  */
 const val OPEN_DOCUMENT_TREE_CODE = 10
+
+/**
+ * List of available FileTypes
+ */
+const val FILETYPES =  "media image audio video any"
+

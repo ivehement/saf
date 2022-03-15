@@ -1,3 +1,4 @@
+/// To get the types for File statically
 class FileTypes {
   static const media = "media";
   static const image = "image";

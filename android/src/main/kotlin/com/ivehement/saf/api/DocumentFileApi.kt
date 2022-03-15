@@ -4,7 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
+import android.content.ContentResolver
 import android.util.Log
+import android.os.Handler
+import android.os.Looper
+import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.plugin.common.*
@@ -52,12 +56,12 @@ internal class DocumentFileApi(private val plugin: SafPlugin) :
       }
       CACHE_TO_EXTERNAL_FILES_DIRECTORY -> {
         if (Build.VERSION.SDK_INT >= API_21) {
-          cacheToExternalFilesDir(call, result)
+          Thread(cacheToExternalFilesDir(call, result, plugin.context, util!!)).start()
         }
       }
       SINGLE_CACHE_TO_EXTERNAL_FILES_DIRECTORY -> {
         if (Build.VERSION.SDK_INT >= API_21) {
-          singleCacheToExternalFilesDir(call, result)
+          singleCacheToExternalFilesDir(call, result, util!!)
         }
       }
       CLEAR_CACHED_FILES -> {
@@ -67,7 +71,12 @@ internal class DocumentFileApi(private val plugin: SafPlugin) :
       }
       SYNC_WITH_EXTERNAL_FILES_DIRECTORY -> {
         if (Build.VERSION.SDK_INT >= API_21) {
-          syncWithExternalFilesDirectory(call, result)
+          Thread(syncWithExternalFilesDirectory(call, result, plugin.context, util!!)).run()
+        }
+      }
+      DYNAMIC_SYNC_WITH_EXTERNAL_FILES_DIRECTORY -> {
+        if (Build.VERSION.SDK_INT >= API_21) {
+          Thread(dynamicSyncWithExternalFilesDirectory(call, result, plugin.context, util!!)).start()
         }
       }
       GET_EXTERNAL_FILES_DIR_PATH -> {
@@ -475,88 +484,128 @@ internal class DocumentFileApi(private val plugin: SafPlugin) :
     }
   }
 
-  fun cacheToExternalFilesDir(call: MethodCall, result: MethodChannel.Result) {
-    try {
-      val sourceTreeUriString = call.argument<String>("sourceTreeUriString")
-      val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
-
-      var cachedFilesPath = listOf<String>()
-      
-      val sourceTreeUri: Uri = Uri.parse(sourceTreeUriString)
-      val sourceDocumentsTree = DocumentFile.fromTreeUri(plugin.context, sourceTreeUri) ?: return
-      var sourceDocumentList = sourceDocumentsTree.listFiles()
-      for (sourceDocumentFile in sourceDocumentList) {
-        if(sourceDocumentFile.isFile) {
-          val copiedPath: String? = util?.syncCopyFileToExternalStorage(sourceDocumentFile.uri, cacheDirectoryName!!, sourceDocumentFile.name!!)
-          if(copiedPath != null) cachedFilesPath += copiedPath.toString()
+  internal class cacheToExternalFilesDir(private val call: MethodCall, private val result: MethodChannel.Result, private val context: Context, private val util: SafUtil): Runnable {
+    override fun run() {
+      try {
+        val sourceTreeUriString = call.argument<String>("sourceTreeUriString")
+        val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
+        val fileType = call.argument<String>("fileType")
+  
+        var cachedFilesPath = listOf<String>()
+        
+        val sourceTreeUri: Uri = Uri.parse(sourceTreeUriString)
+        val sourceChildDocumentsUri = buildChildDocumentsUriUsingTree(sourceTreeUri, context.contentResolver)
+        for (uri in sourceChildDocumentsUri!!) {
+          val fileName = nameFromFileUri(uri).toString()
+          if(fileName.contains(fileType.toString()) || fileType == "any") {
+            val copiedPath: String? = util.syncCopyFileToExternalStorage(uri, cacheDirectoryName!!, fileName)
+            if(copiedPath != null) cachedFilesPath += copiedPath.toString()
+          }
         }
+        result.success(cachedFilesPath)
+      } catch (e: Exception) {
+        Log.e("CACHING_EXCEPTION", e.message!!)
+        result.success(null)
       }
-      result.success(cachedFilesPath)
-    } catch (e: Exception) {
-      Log.e("CACHING_EXCEPTION", e.message!!)
-      result.success(null)
     }
   }
 
-  fun singleCacheToExternalFilesDir(call: MethodCall, result: MethodChannel.Result) {
-    try {
-      val sourceUriString = call.argument<String>("sourceUriString")
-      val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
-
-      var cachedFilePath: String? = null
-      val sourceUri: Uri = Uri.parse(sourceUriString)
-      val pathCuts = sourceUri.getPath().toString().split("/")
-      val fileName = pathCuts[pathCuts.size - 1]
-      
-      val copiedPath: String? = util?.syncCopyFileToExternalStorage(sourceUri, cacheDirectoryName!!, fileName)
-      if(copiedPath != null) cachedFilePath = copiedPath.toString()
-
-      result.success(cachedFilePath)
-    } catch (e: Exception) {
-      Log.e("SINGLE_CACHING_EXCEPTION", e.message!!)
-      result.success(null)
+  internal class singleCacheToExternalFilesDir(private val call: MethodCall, private val result: MethodChannel.Result, private val util: SafUtil): Runnable {
+    override fun run() {
+      try {
+        val sourceUriString = call.argument<String>("sourceUriString")
+        val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
+  
+        var cachedFilePath: String? = null
+        val sourceUri: Uri = Uri.parse(sourceUriString)
+        val copiedPath: String? = util.syncCopyFileToExternalStorage(sourceUri, cacheDirectoryName!!, nameFromFileUri(sourceUri).toString())
+        if(copiedPath != null) cachedFilePath = copiedPath.toString()
+  
+        result.success(cachedFilePath)
+      } catch (e: Exception) {
+        Log.e("SINGLE_CACHING_EXCEPTION", e.message!!)
+        result.success(null)
+      }
     }
   }
 
-  fun syncWithExternalFilesDirectory(call: MethodCall, result: MethodChannel.Result) {
-    try {
-      val sourceTreeUriString = call.argument<String>("sourceTreeUriString")
-      val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
-      
-      val sourceTreeUri: Uri = Uri.parse(sourceTreeUriString)
-      val sourceDocumentsTree = DocumentFile.fromTreeUri(plugin.context, sourceTreeUri) ?: return
-      var sourceDocumentList = sourceDocumentsTree.listFiles()
+  internal class syncWithExternalFilesDirectory(private val call: MethodCall, private val result: MethodChannel.Result, private val context: Context, private val util: SafUtil): Runnable {
+    override fun run() {
+      try {
+        val sourceTreeUriString = call.argument<String>("sourceTreeUriString")
+        val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
+        
+        val sourceTreeUri: Uri = Uri.parse(sourceTreeUriString)
+        var sourceChildDocumentsUri = buildChildDocumentsUriUsingTree(sourceTreeUri, context.contentResolver)
+  
+        val externalFilesDir: File = context.getExternalFilesDir(null)!!
+        val appCacheDirectory: File = File(externalFilesDir.path + "/" + cacheDirectoryName)
+        val cachedFilesNameToPathMap: HashMap<String, String> = HashMap<String, String>()
+        appCacheDirectory.walk().forEach {
+          if(it.isFile()) {
+            cachedFilesNameToPathMap[it.getName()] = it.path.toString()
+          }
+        }
+        val sourceFilesNameToBooleanMap: HashMap<String, Boolean> = HashMap<String, Boolean>()
+        for (uri in sourceChildDocumentsUri!!) {
+          sourceFilesNameToBooleanMap[nameFromFileUri(uri).toString()] = true
+        }
+  
+        for (name in cachedFilesNameToPathMap.keys) {
+          if (sourceFilesNameToBooleanMap.containsKey(name) == false) {
+            File(cachedFilesNameToPathMap[name]!!).delete()
+          }
+        }
+  
+        for (uri in sourceChildDocumentsUri) {
+          util.syncCopyFileToExternalStorage(uri, cacheDirectoryName!!, nameFromFileUri(uri).toString())
+        }
+        Handler(Looper.getMainLooper()).post {
+          result.success(true)
+        }
+      } catch (e: Exception) {
+        Log.e("SYNCING_EXCEPTION", e.message!!)
+        result.success(null)
+      }
+    }
+  }
 
-      val externalFilesDir: File = plugin.context.getExternalFilesDir(null)!!
-      val appCacheDirectory: File = File(externalFilesDir.path + "/" + cacheDirectoryName)
-      val cachedFilesNameToPathMap: HashMap<String, String> = HashMap<String, String>()
-      appCacheDirectory.walk().forEach {
-        if(it.isFile()) {
-          cachedFilesNameToPathMap[it.getName()] = it.path.toString()
+  internal class dynamicSyncWithExternalFilesDirectory(private val call: MethodCall, private val result: MethodChannel.Result, private val context: Context, private val util: SafUtil): Runnable {
+    override fun run() {
+      try {
+        val sourceTreeUriString = call.argument<String>("sourceTreeUriString")
+        val cacheDirectoryName = call.argument<String>("cacheDirectoryName")
+        
+        val sourceTreeUri: Uri = Uri.parse(sourceTreeUriString)
+        var sourceChildDocumentsUri = buildChildDocumentsUriUsingTree(sourceTreeUri, context.contentResolver)
+  
+        val externalFilesDir: File = context.getExternalFilesDir(null)!!
+        val appCacheDirectory: File = File(externalFilesDir.path + "/" + cacheDirectoryName)
+        val cachedFilesNameToPathMap: HashMap<String, String> = HashMap<String, String>()
+        appCacheDirectory.walk().forEach {
+          if(it.isFile()) {
+            cachedFilesNameToPathMap[it.getName()] = it.path.toString()
+          }
         }
-      }
-      val sourceFilesNameToBooleanMap: HashMap<String, Boolean> = HashMap<String, Boolean>()
-      for (sourceDocumentFile in sourceDocumentList) {
-        if(sourceDocumentFile.isFile) {
-          sourceFilesNameToBooleanMap[sourceDocumentFile.name!!] = true
+        val sourceFilesNameToBooleanMap: HashMap<String, Boolean> = HashMap<String, Boolean>()
+        for (uri in sourceChildDocumentsUri!!) {
+          sourceFilesNameToBooleanMap[nameFromFileUri(uri).toString()] = true
         }
-      }
-
-      for (name in cachedFilesNameToPathMap.keys) {
-        if (sourceFilesNameToBooleanMap.containsKey(name) == false) {
-          File(cachedFilesNameToPathMap[name]!!).delete()
+  
+        for (name in cachedFilesNameToPathMap.keys) {
+          if (sourceFilesNameToBooleanMap.containsKey(name) == false) {
+            File(cachedFilesNameToPathMap[name]!!).delete()
+          }
         }
-      }
-
-      for (sourceDocumentFile in sourceDocumentList) {
-        if(sourceDocumentFile.isFile) {
-          val synCopiedPath: String? = util?.syncCopyFileToExternalStorage(sourceDocumentFile.uri, cacheDirectoryName!!, sourceDocumentFile.name!!)
+  
+        for (uri in sourceChildDocumentsUri) {
+          util.syncCopyFileToExternalStorage(uri, cacheDirectoryName!!, nameFromFileUri(uri).toString())
         }
+        result.success(true)
+      } catch (e: Exception) {
+        Log.e("SYNCING_EXCEPTION", e.message!!)
+        result.success(null)
       }
-      result.success(true)
-    } catch (e: Exception) {
-      Log.e("SYNCING_EXCEPTION", e.message!!)
-      result.success(null)
     }
   }
 }
