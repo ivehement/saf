@@ -1,7 +1,7 @@
 import 'package:saf/src/storage_access_framework/api.dart';
 import 'package:saf/src/channels.dart';
 
-/// Extend the native SAF api funtionality and add some of the real Use case for Apps
+/// Extend the native SAF api funtionality and add some of the real Use case methods for Applicatoions
 class Saf {
   String? _uriString;
   String _directory;
@@ -100,11 +100,7 @@ class Saf {
       const kCacheDirectoryName = "cacheDirectoryName";
 
       var cacheDirectoryName = makeDirectoryPathToName(_directory);
-      if (fileType != null && fileType != "any") {
-        fileType = fileType.split("/")[1];
-      } else {
-        fileType = "any";
-      }
+      fileType ??= "any";
 
       final args = <String, dynamic>{
         kSourceTreeUriString: _uriString,
