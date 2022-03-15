@@ -71,7 +71,7 @@ internal class DocumentFileApi(private val plugin: SafPlugin) :
       }
       SYNC_WITH_EXTERNAL_FILES_DIRECTORY -> {
         if (Build.VERSION.SDK_INT >= API_21) {
-          Thread(syncWithExternalFilesDirectory(call, result, plugin.context, util!!)).run()
+          Thread(syncWithExternalFilesDirectory(call, result, plugin.context, util!!)).start()
         }
       }
       DYNAMIC_SYNC_WITH_EXTERNAL_FILES_DIRECTORY -> {
