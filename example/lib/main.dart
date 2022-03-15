@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:saf/saf.dart';
 
 /// Edit the Directory Programmatically Here
-const directory = "Android/media/com.whatsapp/WhatsApp/Media/.Statuses";
+const directory = "Android/media/matrix/.neo";
 
 void main() {
   runApp(const MyApp());
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                     MaterialStateProperty.all(Colors.blueGrey.shade700),
               ),
               onPressed: () async {
-                var cachedFilesPath = await Saf.cacheFor(directory);
+                var cachedFilesPath = await saf.cache();
                 if (cachedFilesPath != null) {
                   loadImage(cachedFilesPath);
                 }
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
                 backgroundColor: MaterialStateProperty.all(Colors.green),
               ),
               onPressed: () async {
-                var isSync = await Saf.syncWith(directory);
+                var isSync = await saf.sync();
                 if (isSync as bool) {
                   var _paths = await saf.getCachedFilesPath();
                   loadImage(_paths);
