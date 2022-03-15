@@ -35,7 +35,7 @@ To use this plugin, add `saf` as a [dependency in your pubspec.yaml file](https:
 
 ### Initiate Saf with instance
 ```dart
-Saf saf = Saf(directoryPath: "~/some/path")
+Saf saf = Saf("~/some/path")
 ```
 
 #### Directory Permission request
