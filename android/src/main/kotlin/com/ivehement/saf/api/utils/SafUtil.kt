@@ -13,20 +13,24 @@ import java.io.FileOutputStream
 import java.io.InputStream
 
 internal class SafUtil(private val context: Context) {
+
+    // Return the root path i.e. `/storage/emulated/0/`
     private fun getRootPath(): String {
         val externalFilesDir: String = context.getExternalFilesDir(null)!!.path
         var rootPath = externalFilesDir.split("Android")[0]
         return rootPath
     }
 
+    // Check if the file exists
     private fun fileExists(filePath: String): Boolean {
         val file: File = File(filePath)
         return file.exists()
     }
 
+    // Get the path from External SD
     private fun getPathFromExtSD(pathData: List<String>,): String {
         val type: String = pathData[0]
-        val relativePath: String = "/" + pathData[1]
+        val relativePath: String = pathData[1]
         var fullPath: String
 
         // on my Nokia devices (4.4.4 & 5.1.1), `type` is a dynamic string
@@ -59,14 +63,16 @@ internal class SafUtil(private val context: Context) {
         return fullPath
     }
 
+    // Get the full path for App's Package [files] folder
     public fun getExternalFilesDirPath(): String {
         val externalFilesDirPath: String = context.getExternalFilesDir(null)!!.path
         return externalFilesDirPath
     }
 
-    public fun clearCachedFiles(dirName: String): Boolean {
+    // Delete the Cached Child Directory at once
+    public fun clearCachedFiles(cachedChildDirectoryName: String): Boolean {
         try {
-            var dir: File = File(context.getExternalFilesDir(null).toString() + "/" + dirName)
+            var dir: File = File(context.getExternalFilesDir(null).toString() + "/" + cachedChildDirectoryName)
             dir.deleteRecursively()
             return true
         }
@@ -75,6 +81,7 @@ internal class SafUtil(private val context: Context) {
         }
     }
 
+    // Copy file to External Storage i.e. App's Package [files] folder. Skip copying when file is already present
     public fun syncCopyFileToExternalStorage(sourceUri: Uri, cacheDirectoryName: String, fileName: String): String? {
         var output: File
         if (!cacheDirectoryName.equals("")) {
@@ -111,14 +118,12 @@ internal class SafUtil(private val context: Context) {
         return output.getPath()
     }
 
-    public fun isWhatsAppFile(uri: Uri): Boolean {
-        return "com.whatsapp.provider.media".equals(uri.getAuthority())
-    }
-
+    // Validate if URI correspond with `ExternalStorageDocument`
     private fun isExternalStorageDocument(uri: Uri): Boolean {
         return "com.android.externalstorage.documents".equals(uri.getAuthority())
     }
 
+    // Convert URI to path string
     public fun getPath(uri: Uri): String {
         try {
             // check here to KITKAT or new version
@@ -160,7 +165,7 @@ internal class SafUtil(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            Log.e("qGET_PATH_EXCEPTION", e.message.toString())
+            Log.e("GET_PATH_EXCEPTION", e.message.toString())
         }
         return ""
     }

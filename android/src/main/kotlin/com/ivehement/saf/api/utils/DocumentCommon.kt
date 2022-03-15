@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Base64
@@ -254,4 +255,59 @@ fun isTreeUri(uri: Uri): Boolean {
   val paths = uri.pathSegments
 
   return paths.size >= 2 && "tree" == paths[0]
+}
+
+/**
+ * extract the file ID i.e name from URI
+ */
+fun nameFromFileUri(uri: Uri): String? {
+  if(!isTreeUri(uri)) return null
+  try {
+    val pathSegments = uri.getPath().toString().split("/")
+    val fileName = pathSegments[pathSegments.size - 1]
+    return fileName
+  }
+  catch(e: Exception) {
+    Log.e("NAME_FROM_FILE_PATH_EXCEPTION", e.message.toString())
+  }
+  return null
+}
+
+/**
+ * Get the list of Uri implementing `DocumentsContract.buildChildDocumentsUriUsingTree`
+ */
+fun buildChildDocumentsUriUsingTree(treeUri: Uri, contentResolver: ContentResolver): List<Uri>? {
+  if(Build.VERSION.SDK_INT >= 21 && isTreeUri(treeUri)) {
+    val parentUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri))
+    var childrenUris = listOf<Uri>()
+    val cursor = contentResolver.query(
+      parentUri, arrayOf(
+        DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+        DocumentsContract.Document.COLUMN_MIME_TYPE,
+        DocumentsContract.Document.COLUMN_LAST_MODIFIED
+        ),
+        null, null, null
+        )
+    try {
+      while (cursor!!.moveToNext()) {
+        val docId = cursor.getString(0)
+        val eachUri = DocumentsContract.buildChildDocumentsUriUsingTree(parentUri, docId).toString().replace("/children", "")
+        childrenUris += Uri.parse(eachUri)
+      }
+      return childrenUris
+    }
+    catch(e: Exception) {
+      Log.e("CONTENT_RESOLVER_EXCEPTION: ", e.message!!)
+    }
+    finally {
+      if (cursor != null) {
+          try {
+              cursor.close()
+          } catch (re: RuntimeException) {
+              
+          }
+      } 
+    }
+  }
+  return null
 }

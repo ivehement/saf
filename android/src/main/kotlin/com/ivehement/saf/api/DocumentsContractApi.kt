@@ -35,17 +35,6 @@ internal class DocumentsContractApi(private val plugin: SafPlugin) :
         try {
           val sourceTreeUri = Uri.parse(call.argument<String>("sourceTreeUriString"))
           val fileType = call.argument<String>("fileType")
-          var fileTypes = listOf<String>()
-          when(fileType) {
-            "media" -> {
-              fileTypes += "image/jpeg"
-              fileTypes += "video/mp4"
-            }
-            else -> {
-              fileTypes += "image/jpeg"
-              fileTypes += "video/mp4"
-            }
-          }
         if(Build.VERSION.SDK_INT >= 21) {
             val parentUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceTreeUri, DocumentsContract.getTreeDocumentId(sourceTreeUri))
             val contentResolver: ContentResolver = plugin.context.contentResolver
@@ -62,7 +51,7 @@ internal class DocumentsContractApi(private val plugin: SafPlugin) :
               while (cursor!!.moveToNext()) {
                 val docId = cursor.getString(0)
                 val mime = cursor.getString(1)
-                if (mime in fileTypes) {
+                if (FILETYPES.contains(mime) || fileType == "any") {
                     val eachUri =
                         DocumentsContract.buildChildDocumentsUriUsingTree(
                             parentUri,
@@ -99,17 +88,6 @@ internal class DocumentsContractApi(private val plugin: SafPlugin) :
         try {
           val sourceTreeUri = Uri.parse(call.argument<String>("sourceTreeUriString"))
           val fileType = call.argument<String>("fileType")
-          var fileTypes = listOf<String>()
-          when(fileType) {
-            "media" -> {
-              fileTypes += "image/jpeg"
-              fileTypes += "video/mp4"
-            }
-            else -> {
-              fileTypes += "image/jpeg"
-              fileTypes += "video/mp4"
-            }
-          }
           if(Build.VERSION.SDK_INT >= 21) {
             val parentUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceTreeUri, DocumentsContract.getTreeDocumentId(sourceTreeUri))
             val contentResolver: ContentResolver = plugin.context.contentResolver
@@ -127,7 +105,7 @@ internal class DocumentsContractApi(private val plugin: SafPlugin) :
               val docId = cursor.getString(0)
               val mime = cursor.getString(1)
               // val lastModified = cursor.getString(2)
-              if (mime in fileTypes || fileType == "any") {
+              if (FILETYPES.contains(mime) || fileType == "any") {
                   val child =
                         DocumentsContract.buildChildDocumentsUriUsingTree(
                             parentUri,

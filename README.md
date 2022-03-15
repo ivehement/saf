@@ -25,6 +25,10 @@ Flutter plugin that leverages Storage Access Framework (SAF) API to get access a
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
 
+## Example App
+#### Android
+![Demo](https://github.com/ivehement/saf/blob/master/example/screenshots/saf_example.gif)
+
 ## Usage
 
 To use this plugin, add `saf` as a [dependency in your pubspec.yaml file](https://flutter.dev/docs/development/platform-integration/platform-channels).
@@ -38,66 +42,64 @@ Saf saf = Saf(directoryPath: "~/some/path")
 ```dart
 bool? isGranted = await saf.getDirectoryPermission(isDynamic: false);
 
-if (isGranted != null) {
+if (isGranted != null && isGranted) {
   // Perform some file operations
 } else {
-  // User canceled the native explorer
+  // failed to get the permission
 }
 ```
-#### Get paths of all the files of granted directory
+#### Get the list of all the paths for the Granted Directories
+```dart
+
+bool? directoriesPath = await saf.getPersistedPermissionDirectories();
+
+```
+#### Get paths of all the files for current directory
 ```dart
 
 List<String>? paths = await saf.getFilesPath(FileType.media);
 
 ```
-#### Cache the granted directory
+#### Cache the current directory
 ```dart
 
-List<String>? cachedFilesPath = await saf.cache();
+bool? isCached = await saf.cache();
+
+if (isCached != null && isCached) {
+  // Perform some file operations
+} else {
+  // failed to cache
+}
 
 ```
-#### Get the cached files' path
+#### Get the cached files' path for current directory
 ```dart
 
 List<String>? cachedFilesPath = await saf.getCachedFilesPath();
 
 ```
-#### Cache a single file of the granted directory
-```dart
-
-String? path = await saf.singleCache(filePath: "~/some/path/file.type");
-
-```
-#### Clear cache of the granted directory
+#### Clear cache for the current directory
 ```dart
 
 bool? isClear = await saf.clearCache();
 
 ```
-#### Sync the cached directory with the granted directory
+#### Sync the current directory with the cached one
 ```dart
 
-bool? isSynced = await saf.syncWithCacheDirectory();
+bool? isSynced = await saf.sync();
 
 ```
-#### Release the persisted permission for current granted directory
+#### Release the persisted permission for current directory
 ```dart
 
-bool? isReleased = await saf.releasePersistedPermission();
+bool? isReleased = await Saf.releasePersistedPermission();
 
 ```
-#### Get the list of all the granted directory paths with persisted permissions
+#### Release the persisted permissions for all the granted directories
 ```dart
 
-// Static method
-List<String>? paths = await Saf.getPersistedPermissionDirectories();
-
-```
-#### Release the persisted permissions for all granted the directories
-```dart
-
-// Static method
-bool? isReleased = await Saf.releasePersistedPermissions();
+await Saf.releasePersistedPermissions();
 
 ```
 
@@ -117,26 +119,6 @@ See the **[Saf Wiki](https://github.com/ivehement/saf/wiki)** for every detail o
 5. [Troubleshooting](https://github.com/ivehement/saf/wiki/Troubleshooting)
 
 For full usage details refer to the **[Wiki](https://github.com/ivehement/saf/wiki)** above.
-
-## Example App
-#### Android
-![Demo](https://github.com/ivehement/saf/blob/master/example/screenshots/saf_example.gif)
-
-## Compatibility Chart
-
-| API                                   | Android            | iOS                | Windows            | linux              | macOS              |
-| ------------------------------------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
-| getDirectoryPermission()              | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| getFilesPath()                        | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| getCachedFilesPath()                  | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| cache()                               | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| singleCache()                         | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| clearCache()                          | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| syncWithCacheDir()                    | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| getPersistedPermissionDirectories()   | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| releasePersistedPermissions()         | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
-
-See the [API section of the Saf Wiki](https://github.com/ivehement/saf/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/saf/latest/saf/Saf-class.html) for further details.
 
 ## Getting Started
 
