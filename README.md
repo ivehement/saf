@@ -6,9 +6,9 @@
  <a href="https://pub.dartlang.org/packages/saf">
     <img alt="Saf" src="https://img.shields.io/pub/v/saf.svg">
   </a>
-  <a href="https://github.com/lognjais/saf/issues"><img src="https://img.shields.io/github/issues/jvoltci/saf">
+  <a href="https://github.com/lognjais/saf/issues"><img src="https://img.shields.io/github/issues/lognjais/saf">
   </a>
-  <img src="https://img.shields.io/github/license/jvoltci/saf">
+  <img src="https://img.shields.io/github/license/lognjais/saf">
   <a href="https://github.com/lognjais/saf/actions/workflows/ci.yml">
     <img alt="CI pipeline status" src="https://github.com/lognjais/saf/actions/workflows/ci.yml/badge.svg">
   </a>
@@ -147,7 +147,7 @@ path, write a file back. `cd example && flutter run`.
 ---
 
 <p align="center">
-  <sub>Built &amp; maintained by <a href="https://github.com/jvoltci"><b>jvoltci</b></a> &nbsp;·&nbsp; <a href="https://lognjais.github.io/saf/">Docs</a> &nbsp;·&nbsp; <a href="https://github.com/lognjais/saf/issues">Issues</a> &nbsp;·&nbsp; <a href="https://pub.dev/packages/saf">pub.dev</a> &nbsp;·&nbsp; MIT License</sub>
+  <sub>Built &amp; maintained by <a href="https://github.com/lognjais"><b>jvoltci</b></a> &nbsp;·&nbsp; <a href="https://lognjais.github.io/saf/">Docs</a> &nbsp;·&nbsp; <a href="https://github.com/lognjais/saf/issues">Issues</a> &nbsp;·&nbsp; <a href="https://pub.dev/packages/saf">pub.dev</a> &nbsp;·&nbsp; MIT License</sub>
 </p>
 <p align="center"><sub>⭐ If <code>saf</code> saves you time, star the repo — it helps other Flutter devs find it.</sub></p>
 
